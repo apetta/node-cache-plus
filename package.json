@@ -1,0 +1,59 @@
+{
+	"name": "node-cache-plus",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "A wrapper around node-cache with additional features such tag based invalidation, factory functions, and more.",
+	"main": "dist/index.js",
+	"files": ["dist"],
+	"scripts": {
+		"build": "tsc",
+		"check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
+		"check": "biome check ./src",
+		"check-tsc": "tsc --noEmit",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"ci": "pnpm check-exports && pnpm check-format && pnpm lint && pnpm build"
+	},
+	"keywords": [
+		"cache",
+		"caching",
+		"local",
+		"variable",
+		"multi",
+		"memory",
+		"internal",
+		"node",
+		"memcached",
+		"object",
+		"tags",
+		"factory",
+		"wrapper",
+		"helpers"
+	],
+	"tags": [
+		"cache",
+		"caching",
+		"local",
+		"variable",
+		"multi",
+		"memory",
+		"internal",
+		"node",
+		"memcached",
+		"object",
+		"tags",
+		"factory",
+		"wrapper",
+		"helpers"
+	],
+	"author": "Akshay Petta <hello@akshaypetta.com> (https://akshaypetta.com)",
+	"license": "MIT",
+	"devDependencies": {
+		"@arethetypeswrong/cli": "~0.17.1",
+		"@biomejs/biome": "1.9.4",
+		"@types/node": "~22.10.2",
+		"typescript": "~5.7.2"
+	},
+	"dependencies": {
+		"node-cache": "^5.1.2"
+	}
+}
