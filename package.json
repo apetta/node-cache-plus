@@ -6,12 +6,12 @@
 	"main": "dist/index.js",
 	"files": ["dist"],
 	"scripts": {
-		"build": "tsc",
+		"build": "tsup",
 		"check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
 		"check": "biome check ./src",
 		"check-tsc": "tsc --noEmit",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"ci": "pnpm check-exports && pnpm check-format && pnpm lint && pnpm build"
+		"ci": "pnpm check-exports && pnpm check && pnpm build"
 	},
 	"keywords": [
 		"cache",
@@ -51,9 +51,10 @@
 		"@arethetypeswrong/cli": "~0.17.1",
 		"@biomejs/biome": "1.9.4",
 		"@types/node": "~22.10.2",
+		"tsup": "~8.3.5",
 		"typescript": "~5.7.2"
 	},
 	"dependencies": {
-		"node-cache": "^5.1.2"
+		"@cacheable/node-cache": "1.5.1"
 	}
 }
