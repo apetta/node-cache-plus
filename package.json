@@ -10,8 +10,8 @@
 		"check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
 		"check": "biome check ./src",
 		"check-tsc": "tsc --noEmit",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"ci": "pnpm check-exports && pnpm check && pnpm build"
+		"test": "vitest run",
+		"ci": "pnpm check-exports && pnpm check && pnpm test && pnpm build"
 	},
 	"keywords": [
 		"cache",
@@ -52,7 +52,8 @@
 		"@biomejs/biome": "1.9.4",
 		"@types/node": "~22.10.2",
 		"tsup": "~8.3.5",
-		"typescript": "~5.7.2"
+		"typescript": "~5.7.2",
+		"vitest": "~2.1.8"
 	},
 	"dependencies": {
 		"@cacheable/node-cache": "1.5.1"
