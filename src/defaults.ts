@@ -14,11 +14,11 @@ export function configureDefaultCache(options?: NodeCacheOptions): Cache {
 
 /**
  * Gets the currently configured default cache.
- * If not configured yet, configures it with a default TTL of 6 hours.
+ * If not configured yet, configures it with default options.
  */
 export function getDefaultCache(): Cache {
 	if (!defaultCache) {
-		defaultCache = new Cache({ stdTTL: 21600 });
+		defaultCache = new Cache();
 	}
 	return defaultCache;
 }
