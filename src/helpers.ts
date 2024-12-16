@@ -22,10 +22,10 @@ function defaultKeyGenerator(fnName: string, args: any[]): string {
  * @param options - Optional caching parameters.
  * @param fnArgs - Arguments to pass into the async function.
  */
-export async function cachedCall<T>(
-	fn: (...fnArgs: any[]) => Promise<T>,
+export async function cachedCall<T, A extends any[]>(
+	fn: (...args: A) => Promise<T>,
 	options: CacheFunctionOptions = {},
-	...fnArgs: any[]
+	...fnArgs: A
 ): Promise<T> {
 	const {
 		ttl,
