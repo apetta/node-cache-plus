@@ -1,17 +1,16 @@
 import NodeCache, { type NodeCacheOptions } from "@cacheable/node-cache";
 import type { CacheItem } from "./types";
 
-export class Cache extends NodeCache {
+export class Cache {
 	private cache: NodeCache;
 	private tagMap: Map<string, Set<string>>;
 
 	constructor(options?: NodeCacheOptions) {
-		super();
 		this.cache = new NodeCache(options);
 		this.tagMap = new Map();
 	}
 
-	public override set(
+	public set(
 		key: string,
 		value: any,
 		ttl?: number | string,
@@ -31,12 +30,29 @@ export class Cache extends NodeCache {
 		return success;
 	}
 
-	public override get<T>(key: string): T | undefined {
+	public mset(
+		items: {
+			key: string;
+			value: any;
+			ttl?: number | string;
+			tags?: string[];
+		}[],
+	): boolean[] {
+		return items.map((item) =>
+			this.set(item.key, item.value, item.ttl, item.tags ?? []),
+		);
+	}
+
+	public get<T>(key: string): T | undefined {
 		const item = this.cache.get(key) as CacheItem | undefined;
 		return item ? (item.value as T) : undefined;
 	}
 
-	public override del(keys: string | string[]): number {
+	public mget<T>(keys: string[]): (T | undefined)[] {
+		return keys.map((key) => this.get<T>(key));
+	}
+
+	public del(keys: string | string[]): number {
 		if (!Array.isArray(keys)) keys = [keys];
 		const deletedCount = this.cache.del(keys);
 		for (const key of keys) {
@@ -47,6 +63,26 @@ export class Cache extends NodeCache {
 			}
 		}
 		return deletedCount;
+	}
+
+	public mdel(keys: string[]): number {
+		return this.del(keys);
+	}
+
+	public take<T>(key: string): T | undefined {
+		const item = this.cache.take(key) as CacheItem | undefined;
+		if (item) {
+			for (const tag of item.tags) {
+				const keySet = this.tagMap.get(tag);
+				if (keySet) {
+					keySet.delete(key);
+					if (keySet.size === 0) {
+						this.tagMap.delete(tag);
+					}
+				}
+			}
+		}
+		return item ? (item.value as T) : undefined;
 	}
 
 	public invalidateTag(tag: string): void {
@@ -93,12 +129,12 @@ export class Cache extends NodeCache {
 		}
 	}
 
-	public override flushAll(): void {
+	public flushAll(): void {
 		this.cache.flushAll();
 		this.tagMap.clear();
 	}
 
-	public override keys(): string[] {
+	public keys(): string[] {
 		return this.cache.keys();
 	}
 

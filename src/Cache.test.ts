@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Cache } from "./Cache";
+import NodeCache from "@cacheable/node-cache";
 
 describe("Cache", () => {
 	let cache: Cache;
@@ -8,7 +9,7 @@ describe("Cache", () => {
 		cache = new Cache();
 	});
 
-	it("should set and get values correctly", () => {
+	it("should set, get, and take values correctly", () => {
 		cache.set("key0", "value0", 60, []);
 		cache.set("key1", "value1", 60, ["tag1"]);
 		cache.set("key2", "value2", 60, ["tag2"]);
@@ -27,6 +28,13 @@ describe("Cache", () => {
 		expect(cache.get("key4")).toBe("value4");
 		expect(cache.get("key5")).toBe("value5");
 		expect(cache.get("key6")).toBe("value6");
+
+		// take value
+		expect(cache.take("key0")).toBe("value0");
+
+		// check if tags are removed
+		expect(cache.get("key0")).toBeUndefined();
+		expect(cache.get("key1")).toBe("value1");
 	});
 
 	it("should delete a key", () => {
@@ -74,5 +82,58 @@ describe("Cache", () => {
 
 		await new Promise((resolve) => setTimeout(resolve, 2100));
 		expect(cache.get("keyTTL")).toBeUndefined();
+	});
+
+	it("should flush all keys", () => {
+		cache.set("key1", "value1", 60, ["tag1"]);
+		cache.set("key2", "value2", 60, ["tag2"]);
+		cache.flushAll();
+		expect(cache.get("key1")).toBeUndefined();
+		expect(cache.get("key2")).toBeUndefined();
+		expect(cache.keys().length).toBe(0);
+	});
+
+	it("should return all keys", () => {
+		cache.set("key1", "value1", 60, ["tag1"]);
+		cache.set("key2", "value2", 60, ["tag2"]);
+		expect(cache.keys()).toEqual(expect.arrayContaining(["key1", "key2"]));
+	});
+
+	it("should set multiple values using mset", () => {
+		const items = [
+			{ key: "key1", value: "value1", ttl: 60, tags: ["tag1"] },
+			{ key: "key2", value: "value2", ttl: 60, tags: ["tag2"] },
+			{ key: "key3", value: "value3", ttl: 60, tags: ["tag1", "tag2"] },
+		];
+		cache.mset(items);
+
+		expect(cache.get("key1")).toBe("value1");
+		expect(cache.get("key2")).toBe("value2");
+		expect(cache.get("key3")).toBe("value3");
+	});
+
+	it("should get multiple values using mget", () => {
+		cache.set("key1", "value1", 60, ["tag1"]);
+		cache.set("key2", "value2", 60, ["tag2"]);
+		cache.set("key3", "value3", 60, ["tag1", "tag2"]);
+
+		const values = cache.mget(["key1", "key2", "key3"]);
+		expect(values).toEqual(["value1", "value2", "value3"]);
+
+		// invalid tag & check if removed
+		cache.invalidateTagsIntersection(["tag1", "tag2"]);
+		const valuesAfterInvalidation = cache.mget(["key1", "key2", "key3"]);
+		expect(valuesAfterInvalidation).toEqual(["value1", "value2", undefined]);
+	});
+
+	it("should delete multiple keys using mdel", () => {
+		cache.set("key1", "value1", 60, ["tag1"]);
+		cache.set("key2", "value2", 60, ["tag2"]);
+		cache.set("key3", "value3", 60, ["tag1", "tag2"]);
+
+		cache.mdel(["key1", "key2"]);
+		expect(cache.get("key1")).toBeUndefined();
+		expect(cache.get("key2")).toBeUndefined();
+		expect(cache.get("key3")).toBe("value3");
 	});
 });
