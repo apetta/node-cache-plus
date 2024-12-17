@@ -14,6 +14,8 @@ npm install node-cache-plus
 
 `node-cache-plus` is a drop-in replacement for `node-cache`. It provides the same API as `node-cache` with additional features. Refer to the `node-cache` [documentation](https://github.com/node-cache/node-cache#options) for more information on the basic usage and initialisation options.
 
+TypeDoc reference is available [here](https://apetta.github.io/node-cache-plus/).
+
 ### Basic Usage
 
 ```typescript
