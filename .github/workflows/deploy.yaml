@@ -12,6 +12,8 @@ concurrency:
 permissions:
   id-token: write
   pages: write
+  pull-requests: write
+  contents: write
 
 jobs:
   deploy:
