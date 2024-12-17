@@ -1,0 +1,50 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Package
+        run: pnpm run ci
+
+      - name: Build Docs
+        run: pnpm build:docs
+
+      - name: Upload docs to GH Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        id: docs
+        with:
+            path: ./docs
+
+  docs:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.docs.outputs.page_url }}
+    needs: deploy
+    steps:
+      - name: Deploy docs to GitHub Pages 🚀
+        id: docs
+        uses: actions/deploy-pages@v4
