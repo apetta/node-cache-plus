@@ -2,7 +2,7 @@
 	"name": "node-cache-plus",
 	"version": "1.0.0",
 	"type": "module",
-	"description": "A wrapper around node-cache with additional features such tag based invalidation, factory functions, and more.",
+	"description": "A wrapper around @cacheable/node-cache with additional features such tag based invalidation, factory functions, and more.",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": ["dist"],
@@ -30,7 +30,8 @@
 		"tags",
 		"factory",
 		"wrapper",
-		"helpers"
+		"helpers",
+		"cacheable"
 	],
 	"tags": [
 		"cache",
@@ -46,8 +47,17 @@
 		"tags",
 		"factory",
 		"wrapper",
-		"helpers"
+		"helpers",
+		"cacheable"
 	],
+	"homepage": "https://github.com/apetta/node-cache-plus",
+	"bugs": {
+		"url": "https://github.com/apetta/node-cache-plus/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/apetta/node-cache-plus.git"
+	},
 	"author": "Akshay Petta <hello@akshaypetta.com> (https://akshaypetta.com)",
 	"license": "MIT",
 	"devDependencies": {
