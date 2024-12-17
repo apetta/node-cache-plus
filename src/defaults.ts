@@ -1,4 +1,4 @@
-import type { NodeCacheOptions } from "@cacheable/node-cache";
+import type { Options as NodeCacheOptions } from "node-cache";
 import { Cache } from "./Cache";
 
 let defaultCache: Cache | null = null;

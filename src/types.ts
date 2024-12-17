@@ -1,4 +1,3 @@
-import type NodeCache from "@cacheable/node-cache";
 import type { Cache } from "./Cache";
 
 export interface CacheItem {
@@ -13,5 +12,3 @@ export interface CacheFunctionOptions {
 	keyGenerator?: (fnName: string, args: any[]) => string;
 	cacheInstance?: Cache;
 }
-
-export type { NodeCache };

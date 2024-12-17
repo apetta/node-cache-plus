@@ -1,12 +1,14 @@
-import NodeCache, { type NodeCacheOptions } from "@cacheable/node-cache";
+import NodeCache, {
+	type Key,
+	type Options as NodeCacheOptions,
+} from "node-cache";
 import type { CacheItem } from "./types";
 
-export class Cache {
-	private readonly cache: NodeCache;
-	private readonly tagMap: Map<string, Set<string>>;
+export class Cache extends NodeCache {
+	private readonly tagMap: Map<string, Set<Key>>;
 
 	constructor(options?: NodeCacheOptions) {
-		this.cache = new NodeCache(options);
+		super(options);
 		this.tagMap = new Map();
 	}
 
@@ -18,13 +20,14 @@ export class Cache {
 	 * @param tags - Array of tags to associate with the key
 	 * @returns Whether the key was set successfully
 	 */
-	public set(
-		key: string,
+	public override set(
+		key: Key,
 		value: any,
 		ttl?: number | string,
 		tags: string[] = [],
 	): boolean {
-		const success = this.cache.set(key, { value, tags }, ttl);
+		// biome-ignore lint/style/noNonNullAssertion: NodeCache typings are incorrect
+		const success = super.set(key, { value, tags }, ttl!);
 		if (success) {
 			for (const tag of tags) {
 				let keys = this.tagMap.get(tag);
@@ -48,17 +51,19 @@ export class Cache {
 	 *
 	 * @returns {boolean[]} An array of booleans indicating whether each key was set successfully.
 	 */
-	public mset(
+	public override mset(
 		items: {
-			key: string;
-			value: any;
+			key: Key;
+			val: any;
 			ttl?: number | string;
 			tags?: string[];
 		}[],
-	): boolean[] {
-		return items.map((item) =>
-			this.set(item.key, item.value, item.ttl, item.tags ?? []),
+	): boolean {
+		items.map((item) =>
+			this.set(item.key, item.val, item.ttl, item.tags ?? []),
 		);
+
+		return true;
 	}
 
 	/**
@@ -66,8 +71,8 @@ export class Cache {
 	 * @param key - Key to retrieve
 	 * @returns Value of the key
 	 */
-	public get<T>(key: string): T | undefined {
-		const item = this.cache.get(key) as CacheItem | undefined;
+	public override get<T>(key: Key): T | undefined {
+		const item = super.get(key) as CacheItem | undefined;
 		return item ? (item.value as T) : undefined;
 	}
 
@@ -76,8 +81,15 @@ export class Cache {
 	 * @param keys - Array of keys to retrieve
 	 * @returns Array of values
 	 */
-	public mget<T>(keys: string[]): (T | undefined)[] {
-		return keys.map((key) => this.get<T>(key));
+	public override mget<T>(keys: Key[]): { [key: string]: T } {
+		const result: { [key: string]: T } = {};
+		for (const key of keys) {
+			const value = this.get<T>(key);
+			if (value !== undefined) {
+				result[key] = value;
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -85,9 +97,9 @@ export class Cache {
 	 * @param keys - Key or array of keys to delete
 	 * @returns Number of keys deleted
 	 */
-	public del(keys: string | string[]): number {
+	public override del(keys: Key | Key[]): number {
 		if (!Array.isArray(keys)) keys = [keys];
-		const deletedCount = this.cache.del(keys);
+		const deletedCount = super.del(keys);
 		for (const key of keys) {
 			for (const [tag, keySet] of this.tagMap.entries()) {
 				if (keySet.delete(key) && keySet.size === 0) {
@@ -112,20 +124,13 @@ export class Cache {
 	 * @param key - Key to take
 	 * @returns Value of the key
 	 */
-	public take<T>(key: string): T | undefined {
-		const item = this.cache.take(key) as CacheItem | undefined;
+	public override take<T>(key: Key): T | undefined {
+		const item = super.get(key) as CacheItem | undefined;
+
 		if (item) {
-			for (const tag of item.tags) {
-				const keySet = this.tagMap.get(tag);
-				if (keySet) {
-					keySet.delete(key);
-					if (keySet.size === 0) {
-						this.tagMap.delete(tag);
-					}
-				}
-			}
+			this.del(key);
+			return item.value as T;
 		}
-		return item ? (item.value as T) : undefined;
 	}
 
 	/**
@@ -151,7 +156,7 @@ export class Cache {
 	}
 
 	/**
-	 * Invalidates all keys that have all of the specified tags.
+	 * Invalidates keys that have all of the specified tags.
 	 * @param tags - Array of tags to invalidate
 	 * @returns void
 	 * @example
@@ -169,9 +174,9 @@ export class Cache {
 		const tagsToInvalidate = tags.filter((tag) => this.tagMap.has(tag));
 		if (tagsToInvalidate.length === 0) return;
 
-		let keysIntersection: Set<string> | null = null;
+		let keysIntersection: Set<Key> | null = null;
 		for (const tag of tagsToInvalidate) {
-			const keySet = this.tagMap.get(tag) ?? new Set<string>();
+			const keySet = this.tagMap.get(tag) ?? new Set<Key>();
 			if (keysIntersection === null) {
 				keysIntersection = new Set(keySet);
 			} else {
@@ -203,7 +208,7 @@ export class Cache {
 	 * cache.get("key3"); // undefined
 	 */
 	public invalidateTagsUnion(tags: string[]): void {
-		const uniqueKeys = new Set<string>();
+		const uniqueKeys = new Set<Key>();
 		for (const tag of tags) {
 			const keySet = this.tagMap.get(tag);
 			if (keySet) {
@@ -221,52 +226,17 @@ export class Cache {
 	 * Flushes all keys and tags from the cache.
 	 * @returns void
 	 */
-	public flushAll(): void {
-		this.cache.flushAll();
+	public override flushAll(): void {
+		super.flushAll();
 		this.tagMap.clear();
-	}
-
-	public get keys() {
-		return this.cache.keys.bind(this.cache);
-	}
-
-	public get ttl(): typeof this.cache.ttl {
-		return this.cache.ttl.bind(this.cache);
-	}
-
-	public get getTtl() {
-		return this.cache.getTtl.bind(this.cache);
-	}
-
-	public get has() {
-		return this.cache.has.bind(this.cache);
-	}
-
-	public get getStats() {
-		return this.cache.getStats.bind(this.cache);
-	}
-
-	public get flushStats() {
-		return this.cache.flushStats.bind(this.cache);
-	}
-
-	public get close() {
-		return this.cache.close.bind(this.cache);
-	}
-
-	/**
-	 * Returns the NodeCache instance used by the Cache class.
-	 * @returns NodeCache instance
-	 */
-	public getCacheInstance(): NodeCache {
-		return this.cache;
 	}
 
 	/**
 	 * Returns the tag map used by the Cache class.
 	 * @returns Tag map
 	 */
-	public getTagMap(): Map<string, Set<string>> {
+	public getTagMap(): Map<string, Set<Key>> {
+		super.addListener;
 		return this.tagMap;
 	}
 }
