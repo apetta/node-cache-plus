@@ -1,5 +1,11 @@
 # node-cache-plus
 
+## 2.0.1
+
+### Patch Changes
+
+- c036218: Updating readme with docs & examples
+
 ## 2.0.0
 
 ### Major Changes
