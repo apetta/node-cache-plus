@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Cache } from "./Cache";
+import NodeCache from "@cacheable/node-cache";
 
 describe("Cache", () => {
 	let cache: Cache;
@@ -186,5 +187,29 @@ describe("Cache", () => {
 		const stats = cache.getStats();
 		expect(stats.hits).toBe(0);
 		expect(stats.misses).toBe(0);
+	});
+
+	it("should return the cache instance for custom operations", () => {
+		const cacheInstance = cache.getCacheInstance();
+		expect(cacheInstance).toBeInstanceOf(NodeCache);
+
+		// test a hook
+		cacheInstance.on("set", (key, value) => {
+			expect(key).toBe("keyHook");
+			expect(value).toStrictEqual({
+				value: "valueHook",
+				tags: [],
+			});
+		});
+
+		cache.set("keyHook", "valueHook", 60);
+	});
+
+	it("should return the tag map", () => {
+		cache.set("key1", "value1", 60, ["tag1"]);
+		cache.set("key2", "value2", 60, ["tag2"]);
+		const tagMap = cache.getTagMap();
+		expect(tagMap.get("tag1")).toEqual(new Set(["key1"]));
+		expect(tagMap.get("tag2")).toEqual(new Set(["key2"]));
 	});
 });

@@ -5,8 +5,8 @@ import NodeCache, {
 import type { CacheItem } from "./types";
 
 export class Cache {
-	private cache: NodeCache;
-	private tagMap: Map<string, Set<string>>;
+	private readonly cache: NodeCache;
+	private readonly tagMap: Map<string, Set<string>>;
 
 	constructor(options?: NodeCacheOptions) {
 		this.cache = new NodeCache(options);
@@ -163,5 +163,13 @@ export class Cache {
 
 	public close(): void {
 		this.cache.close();
+	}
+
+	public getCacheInstance(): NodeCache {
+		return this.cache;
+	}
+
+	public getTagMap(): Map<string, Set<string>> {
+		return this.tagMap;
 	}
 }
