@@ -9,10 +9,10 @@
 		"build": "tsup",
 		"build:docs": "typedoc --out docs ./src/index.ts",
 		"check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
-		"check": "biome check ./src",
+		"check": "biome check ./src --diagnostic-level=error --fix",
 		"check-tsc": "tsc --noEmit",
 		"test": "vitest run",
-		"ci": "pnpm check-exports && pnpm check && pnpm test && pnpm build"
+		"ci": "pnpm check && pnpm test && pnpm build && pnpm check-exports"
 	},
 	"keywords": [
 		"cache",

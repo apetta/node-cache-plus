@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { Cache } from "./Cache";
 import NodeCache from "@cacheable/node-cache";
+import { beforeEach, describe, expect, it } from "vitest";
+import { Cache } from "./Cache";
 
 describe("Cache", () => {
 	let cache: Cache;

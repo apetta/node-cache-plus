@@ -1,7 +1,7 @@
-import { getDefaultCache } from "./defaults";
-import type { CacheFunctionOptions } from "./types";
 import crypto from "node:crypto";
 import type { Cache } from "./Cache";
+import { getDefaultCache } from "./defaults";
+import type { CacheFunctionOptions } from "./types";
 
 function defaultKeyGenerator(fnName: string, args: any[]): string {
 	const hash = crypto
