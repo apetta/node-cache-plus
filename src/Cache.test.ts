@@ -137,14 +137,22 @@ describe("Cache", () => {
 		expect(cache.get("key3")).toBe("value3");
 	});
 
-	it("should redefine the ttl of a key", () => {
-		cache.set("keyTTL", "valueTTL", 60);
-		expect(cache.ttl("keyTTL", 120)).toBe(true);
-	});
-
 	it("should get the ttl expiration of a key", () => {
 		cache.set("keyTTL", "valueTTL", 60);
 		expect(cache.getTtl("keyTTL")).toBeGreaterThan(Date.now());
+		expect(cache.getTtl("keyTTL")).toBeLessThanOrEqual(Date.now() + 60000);
+	});
+
+	it("should redefine the ttl of a key", () => {
+		cache.set("keyTTL", "valueTTL", 60);
+		// check if less than 60 seconds
+		expect(cache.getTtl("keyTTL")).toBeGreaterThan(Date.now());
+		expect(cache.getTtl("keyTTL")).toBeLessThanOrEqual(Date.now() + 60000);
+		// redefine the ttl
+		expect(cache.ttl("keyTTL", 120)).toBe(true);
+		// check if greater than 60 seconds & less than 120 seconds
+		expect(cache.getTtl("keyTTL")).toBeGreaterThan(Date.now() + 60000);
+		expect(cache.getTtl("keyTTL")).toBeLessThanOrEqual(Date.now() + 120000);
 	});
 
 	it("should check if a key exists", () => {
