@@ -1,4 +1,7 @@
-import NodeCache, { type NodeCacheOptions } from "@cacheable/node-cache";
+import NodeCache, {
+	type NodeCacheOptions,
+	type NodeCacheStats,
+} from "@cacheable/node-cache";
 import type { CacheItem } from "./types";
 
 export class Cache {
@@ -138,7 +141,27 @@ export class Cache {
 		return this.cache.keys();
 	}
 
-	public getCacheInstance(): NodeCache {
-		return this.cache;
+	public ttl(key: string | number, ttl?: number): boolean {
+		return this.cache.ttl(key, ttl);
+	}
+
+	public getTtl(key: string | number): number | undefined {
+		return this.cache.getTtl(key);
+	}
+
+	public has(key: string | number): boolean {
+		return this.cache.has(key);
+	}
+
+	public getStats(): NodeCacheStats {
+		return this.cache.getStats();
+	}
+
+	public flushStats(): void {
+		this.cache.flushStats();
+	}
+
+	public close(): void {
+		this.cache.close();
 	}
 }

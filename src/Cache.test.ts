@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Cache } from "./Cache";
-import NodeCache from "@cacheable/node-cache";
 
 describe("Cache", () => {
 	let cache: Cache;
@@ -135,5 +134,57 @@ describe("Cache", () => {
 		expect(cache.get("key1")).toBeUndefined();
 		expect(cache.get("key2")).toBeUndefined();
 		expect(cache.get("key3")).toBe("value3");
+	});
+
+	it("should redefine the ttl of a key", () => {
+		cache.set("keyTTL", "valueTTL", 60);
+		expect(cache.ttl("keyTTL", 120)).toBe(true);
+	});
+
+	it("should get the ttl expiration of a key", () => {
+		cache.set("keyTTL", "valueTTL", 60);
+		expect(cache.getTtl("keyTTL")).toBeGreaterThan(Date.now());
+	});
+
+	it("should check if a key exists", () => {
+		cache.set("keyExists", "valueExists", 60);
+		expect(cache.has("keyExists")).toBe(true);
+		expect(cache.has("keyNonExists")).toBe(false);
+	});
+
+	it("should get all keys", () => {
+		cache.set("key1", "value1", 60);
+		cache.set("key2", "value2", 60);
+		expect(cache.keys()).toEqual(expect.arrayContaining(["key1", "key2"]));
+	});
+
+	it("should get the stats of the cache", () => {
+		cache.set("keyStats", "valueStats", 60);
+		const stats = cache.getStats();
+		expect(stats.keys).toBeGreaterThan(0);
+		expect(stats.hits).toBe(0);
+		expect(stats.misses).toBe(0);
+
+		cache.get("keyStats");
+		const statsAfterGet = cache.getStats();
+		expect(statsAfterGet.hits).toBe(1);
+		expect(statsAfterGet.misses).toBe(0);
+
+		cache.get("keyNonExists");
+		const statsAfterGetNonExists = cache.getStats();
+		expect(statsAfterGetNonExists.hits).toBe(1);
+		expect(statsAfterGetNonExists.misses).toBe(1);
+
+		cache.del("keyStats");
+		const statsAfterDelete = cache.getStats();
+		expect(statsAfterDelete.keys).toBe(0);
+	});
+
+	it("should flush the stats", () => {
+		cache.set("keyStats", "valueStats", 60);
+		cache.flushStats();
+		const stats = cache.getStats();
+		expect(stats.hits).toBe(0);
+		expect(stats.misses).toBe(0);
 	});
 });
