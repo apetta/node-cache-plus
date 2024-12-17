@@ -1,11 +1,13 @@
 {
 	"name": "node-cache-plus",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"type": "module",
 	"description": "A wrapper around @cacheable/node-cache with additional features such tag based invalidation, factory functions, and more.",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "tsup",
 		"build:docs": "typedoc --out docs ./src/index.ts",
