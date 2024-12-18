@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { Cache } from "./Cache";
+import { Cache } from "../Cache";
 
 describe("Cache", () => {
 	let cache: Cache;
