@@ -36,8 +36,12 @@ cache.del("key");
 
 ### Tag-based Invalidation
 
+#### Invalidate a single tag
+
+`invalidateTag` method invalidates all keys with a specific tag.
+
 ```typescript
-// Set a value with tags
+// Set values with tags
 cache.set("key1", "value1", 60, ["tag1"]);
 cache.set("key2", "value2", 60, ["tag2"]);
 cache.set("key3", "value3", 60, ["tag1", "tag2"]);
@@ -45,11 +49,45 @@ cache.set("key3", "value3", 60, ["tag1", "tag2"]);
 // Invalidate all keys with a specific tag
 cache.invalidateTag("tag1"); // i.e. Invalidates keys "key1" and "key3"
 
+cache.get("key1"); // Output: undefined
+cache.get("key2"); // Output: "value2"
+cache.get("key3"); // Output: undefined
+```
+
+#### Invalidate Intersection of Tags
+
+`invalidateTagsIntersection` method invalidates keys that have _all_ specified tags.
+
+```typescript
+// Set values with tags
+cache.set("key1", "value1", 60, ["tag1"]);
+cache.set("key2", "value2", 60, ["tag2"]);
+cache.set("key3", "value3", 60, ["tag1", "tag2"]);
+
 // Invalidate keys that have all specified tags
 cache.invalidateTagsIntersection(["tag1", "tag2"]); // i.e. Invalidates key "key3"
 
+cache.get("key1"); // Output: "value1"
+cache.get("key2"); // Output: "value2"
+cache.get("key3"); // Output: undefined
+```
+
+#### Invalidate Union of Tags
+
+`invalidateTagsUnion` method invalidates keys that have _at least one_ of the specified tags.
+
+```typescript
+// Set values with tags
+cache.set("key1", "value1", 60, ["tag1"]);
+cache.set("key2", "value2", 60, ["tag2"]);
+cache.set("key3", "value3", 60, ["tag1", "tag2"]);
+
 // Invalidate keys that have at least one of the specified tags
-cache.invalidateTagsUnion(["tag1", "tag2"]); // i.e. Invalidates keys "key1" and "key2"
+cache.invalidateTagsUnion(["tag1", "tag2"]); // i.e. Invalidates all keys
+
+cache.get("key1"); // Output: undefined
+cache.get("key2"); // Output: undefined
+cache.get("key3"); // Output: undefined
 ```
 
 ### `withCache` Helper Function
@@ -71,7 +109,7 @@ const data = await cachedFetchData("param1");
 console.log(data); // Output: "data_param1"
 ```
 
-_Note: This function uses the default cache, but you can pass a custom cache instance as an option. See details in the [Configuring Default Cache](#configuring-default-cache) section below._
+_Note: This function uses the default cache, see details in the [Configuring Default Cache](#configuring-default-cache) section below. You can also pass a custom cache instance as a prop to the `withCache` helper_
 
 ### `cachedCall` Helper Function
 
@@ -94,7 +132,7 @@ const data = await cachedCall(
 console.log(data); // Output: "data_param1"
 ```
 
-_Note: This function uses the default cache, but you can pass a custom cache instance as an option. See details in the [Configuring Default Cache](#configuring-default-cache) section below._
+_Note: This function uses the default cache, see details in the [Configuring Default Cache](#configuring-default-cache) section below. You can also pass a custom cache instance as a prop to the `cachedCall` helper_
 
 ### Configuring Default Cache
 
