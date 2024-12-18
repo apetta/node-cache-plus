@@ -1,5 +1,11 @@
 # node-cache-plus
 
+## 2.0.3
+
+### Patch Changes
+
+- aedaf21: docs(README): enhance tag invalidation section with detailed examples
+
 ## 2.0.2
 
 ### Patch Changes
