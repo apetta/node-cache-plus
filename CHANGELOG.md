@@ -1,5 +1,11 @@
 # node-cache-plus
 
+## 2.0.2
+
+### Patch Changes
+
+- 6a6a145: fix typo in docs
+
 ## 2.0.1
 
 ### Patch Changes
