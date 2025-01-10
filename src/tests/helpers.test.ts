@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cachedCall, withCache, defaultKeyGenerator } from "../helpers";
+import { cachedCall, defaultKeyGenerator, withCache } from "../helpers";
 
 // A mock function that simulates an expensive async operation
 async function expensiveFunction(param: string): Promise<string> {
