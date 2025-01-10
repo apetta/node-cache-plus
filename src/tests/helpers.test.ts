@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cachedCall, withCache } from "../helpers";
+import { cachedCall, withCache, defaultKeyGenerator } from "../helpers";
 
 // A mock function that simulates an expensive async operation
 async function expensiveFunction(param: string): Promise<string> {
@@ -143,5 +143,76 @@ describe("cachedFunction Wrapper with complex parameters", () => {
 		expect(
 			endDifferentCallComplex - startDifferentCallComplex,
 		).toBeGreaterThanOrEqual(500);
+	});
+});
+
+async function noArgFunction(): Promise<string> {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve("no_arg_result");
+		}, 500);
+	});
+}
+
+describe("cachedCall with no arguments", () => {
+	it("should run the function and cache the result on initial call", async () => {
+		const result = await cachedCall(noArgFunction, {
+			ttl: 2,
+			tags: ["testTag"],
+		});
+		expect(result).toBe("no_arg_result");
+	});
+
+	it("should return cached result on second call", async () => {
+		await cachedCall(noArgFunction, { ttl: 2, tags: ["testTag"] });
+		const startCachedCall = Date.now();
+		const result = await cachedCall(noArgFunction, {
+			ttl: 2,
+			tags: ["testTag"],
+		});
+		const endCachedCall = Date.now();
+		expect(result).toBe("no_arg_result");
+		expect(endCachedCall - startCachedCall).toBeLessThan(100);
+	});
+});
+
+const cachedNoArgFunction = withCache(noArgFunction, {
+	ttl: 3600,
+	tags: ["tag1"],
+});
+
+describe("withCache with no arguments", () => {
+	it("should run the function and cache the result on initial call", async () => {
+		const startFirstCall = Date.now();
+		const cachedResult = await cachedNoArgFunction();
+		const endFirstCall = Date.now();
+		expect(cachedResult).toBe("no_arg_result");
+		expect(endFirstCall - startFirstCall).toBeGreaterThanOrEqual(500);
+	});
+
+	it("should return cached result on second call", async () => {
+		await cachedNoArgFunction();
+		const startCachedCall2 = Date.now();
+		const cachedResult = await cachedNoArgFunction();
+		const endCachedCall2 = Date.now();
+		expect(cachedResult).toBe("no_arg_result");
+		expect(endCachedCall2 - startCachedCall2).toBeLessThan(100);
+	});
+});
+
+describe("defaultKeyGenerator", () => {
+	it("should generate a key with no arguments", () => {
+		const key = defaultKeyGenerator("testFunction", []);
+		expect(key).toMatch(/^testFunction:[a-f0-9]{40}$/);
+	});
+
+	it("should generate a key with null arguments", () => {
+		const key = defaultKeyGenerator("testFunction", null as any);
+		expect(key).toMatch(/^testFunction:[a-f0-9]{40}$/);
+	});
+
+	it("should generate a key with undefined arguments", () => {
+		const key = defaultKeyGenerator("testFunction", undefined);
+		expect(key).toMatch(/^testFunction:[a-f0-9]{40}$/);
 	});
 });

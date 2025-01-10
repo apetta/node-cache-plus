@@ -2,6 +2,8 @@
 
 `node-cache-plus` is a wrapper around the popular library [`node-cache`](https://github.com/node-cache/node-cache/tree/master) with additional features such as tag-based invalidation, factory functions, and other helpers for in-memory caching in Node.js applications.
 
+Sorry 🦖, this is an ESM-only package.
+
 ## Installation
 
 To install `node-cache-plus`, use your preferred package manager:

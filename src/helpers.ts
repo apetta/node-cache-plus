@@ -3,7 +3,7 @@ import type { Cache } from "./Cache";
 import { getDefaultCache } from "./defaults";
 import type { CacheFunctionOptions } from "./types";
 
-function defaultKeyGenerator(fnName: string, args: any[]): string {
+export function defaultKeyGenerator(fnName: string, args: any[] = []): string {
 	const hash = crypto
 		.createHash("sha1")
 		.update(JSON.stringify(args))
@@ -36,7 +36,7 @@ export async function cachedCall<T, A extends any[]>(
 	} = options;
 
 	const cache = cacheInstance || getDefaultCache();
-	const fnName = fn.name || "anonymous_function";
+	const fnName = `cachedCall_${fn.name || "anonymous_function"}`;
 	const cacheKey = key ?? keyGenerator(fnName, fnArgs);
 
 	const cachedData = cache.get<T>(cacheKey);
@@ -72,7 +72,7 @@ export function withCache<T extends (...args: any[]) => Promise<any>>(
 		cacheInstance,
 	} = options;
 
-	const fnName = fn.name || "anonymous_function";
+	const fnName = `withCache_${fn.name || "anonymous_function"}`;
 
 	const cachedFn = async (...args: Parameters<T>): Promise<ReturnType<T>> => {
 		const cache: Cache = cacheInstance || getDefaultCache();
