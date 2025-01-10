@@ -1,5 +1,11 @@
 # node-cache-plus
 
+## 2.1.0
+
+### Minor Changes
+
+- 002e3b4: Improved key generation for helper functions withCache & cachedCall - they now prefix the helper name to the key to avoid cache clashes with anonymous functions between helpers. They will still clash within the same helper - use an explicit key if you wish to avoid this.
+
 ## 2.0.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
 	"name": "node-cache-plus",
-	"version": "2.0.3",
+	"version": "2.1.0",
 	"type": "module",
 	"description": "A wrapper around the popular node-cache library, featuring tag-based invalidation, factory functions, and more.",
 	"main": "dist/index.js",
